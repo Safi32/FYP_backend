@@ -11,7 +11,6 @@ app.use(
   })
 )
 app.use(express.json())
-
 app.use("/", userRoutes)
 
 const PORT = process.env.PORT || 3000

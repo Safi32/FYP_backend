@@ -1,13 +1,13 @@
 const bcrypt = require("bcrypt")
 const jwt = require("jsonwebtoken")
 const User = require("../model/index")
+const nodemailer = require("nodemailer")
+require("dotenv").config()
 
 const JWT_SECRET = "DineDeal"
 
 async function createNewUser(req, res) {
   const body = req.body
-
-  // Validate input
   if (
     !body ||
     !body.email ||
@@ -117,9 +117,48 @@ async function getProfile(req, res) {
   }
 }
 
+const generateOTP = (req, res) => {
+  const otp = Math.floor(1000 + Math.random() * 9000)
+
+  const { email } = req.body
+  if (!email) {
+    return res.status(400).json({
+      success: false,
+      message: "Email is required",
+    })
+  }
+  const transporater = nodemailer.createTransport({
+    service: "gmail",
+    auth: {
+      user: process.env.Email_User,
+      pass: process.env.Email_Password,
+    },
+  })
+  const mailOptions = {
+    from: process.env.Email_User,
+    to: email,
+    subject: "Password Reset OTP",
+    text: `Your OTP code for password reset is : ${otp}`,
+  }
+  transporater.sendMail(mailOptions, (error, info) => {
+    if (error) {
+      return res.status(500).json({
+        success: false,
+        message: "Failed to send OTP",
+        error,
+      })
+    }
+    res.status(200).json({
+      success: true,
+      message: `OTP sent successfully to ${email}`,
+    })
+  })
+}
+
 module.exports = {
   createNewUser,
   loginUser,
   authenticateToken,
   getProfile,
+  generateOTP,
 }
