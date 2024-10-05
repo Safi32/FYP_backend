@@ -4,52 +4,34 @@ const User = require("../model/index")
 const nodemailer = require("nodemailer")
 require("dotenv").config()
 
-const JWT_SECRET = "DineDeal"
+const JWT_SECRET = process.env.JWT_SECRET || "DineDeal"
 
 async function createNewUser(req, res) {
-  const body = req.body
-  if (
-    !body ||
-    !body.email ||
-    !body.phoneNumber ||
-    !body.password ||
-    !body.confirmPassword
-  ) {
-    return res.status(400).json({
-      message: "All fields are required",
-    })
+  const { email, phoneNumber, password, confirmPassword } = req.body
+
+  if (!email || !phoneNumber || !password || !confirmPassword) {
+    return res.status(400).json({ message: "All fields are required" })
   }
 
-  if (body.password !== body.confirmPassword) {
-    return res.status(400).json({
-      message: "Passwords do not match",
-    })
+  if (password !== confirmPassword) {
+    return res.status(400).json({ message: "Passwords do not match" })
   }
 
   try {
-    const existingUser = await User.findOne({ email: body.email })
+    const existingUser = await User.findOne({ email })
     if (existingUser) {
-      return res.status(400).json({
-        message: "Email already exists",
-      })
+      return res.status(400).json({ message: "Email already exists" })
     }
 
-    const hashedPassword = await bcrypt.hash(body.password, 10)
-    const newUser = new User({
-      email: body.email,
-      phoneNumber: body.phoneNumber,
-      password: hashedPassword,
-    })
-
+    const hashedPassword = await bcrypt.hash(password, 10)
+    const newUser = new User({ email, phoneNumber, password: hashedPassword })
     await newUser.save()
-    return res.status(201).json({
-      message: "User Created Successfully",
-    })
+
+    return res.status(201).json({ message: "User Created Successfully" })
   } catch (error) {
-    return res.status(500).json({
-      message: "Server error",
-      error: error.message,
-    })
+    return res
+      .status(500)
+      .json({ message: "Server error", error: error.message })
   }
 }
 
@@ -103,11 +85,9 @@ const authenticateToken = (req, res, next) => {
 async function getProfile(req, res) {
   try {
     const specificUser = await User.findById(req.user.id)
-
     if (!specificUser) {
       return res.status(404).json({ message: "User not found" })
     }
-
     return res.status(200).json({
       message: "User profile data retrieved successfully",
       user: specificUser,
@@ -117,7 +97,7 @@ async function getProfile(req, res) {
   }
 }
 
-const generateOTP = (req, res) => {
+async function generateOTP(req, res) {
   const otp = Math.floor(1000 + Math.random() * 9000)
 
   const { email } = req.body
@@ -127,32 +107,85 @@ const generateOTP = (req, res) => {
       message: "Email is required",
     })
   }
-  const transporater = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.Email_User,
-      pass: process.env.Email_Password,
-    },
-  })
-  const mailOptions = {
-    from: process.env.Email_User,
-    to: email,
-    subject: "Password Reset OTP",
-    text: `Your OTP code for password reset is : ${otp}`,
-  }
-  transporater.sendMail(mailOptions, (error, info) => {
-    if (error) {
-      return res.status(500).json({
-        success: false,
-        message: "Failed to send OTP",
-        error,
-      })
+
+  try {
+    const user = await User.findOneAndUpdate({ email }, { otp }, { new: true })
+
+    if (!user) {
+      return res.status(404).json({ success: false, message: "User not found" })
     }
-    res.status(200).json({
-      success: true,
-      message: `OTP sent successfully to ${email}`,
+
+    const transporter = nodemailer.createTransport({
+      service: "gmail",
+      auth: {
+        user: process.env.Email_User,
+        pass: process.env.Email_Password,
+      },
     })
-  })
+
+    const mailOptions = {
+      from: process.env.Email_User,
+      to: email,
+      subject: "Password Reset OTP",
+      text: `Your OTP code for password reset is: ${otp}`,
+    }
+
+    transporter.sendMail(mailOptions, (error, info) => {
+      if (error) {
+        return res.status(500).json({
+          success: false,
+          message: "Failed to send OTP",
+          error,
+        })
+      }
+      res.status(200).json({
+        success: true,
+        message: `OTP sent successfully to ${email}`,
+      })
+    })
+  } catch (error) {
+    return res
+      .status(500)
+      .json({ success: false, message: "Server error", error })
+  }
+}
+
+const verifyOTP = async (req, res) => {
+  const { email, otp } = req.body
+
+  if (!email || !otp) {
+    return res
+      .status(400)
+      .json({ success: false, message: "Email and OTP are required" })
+  }
+
+  try {
+    const user = await User.findOne({ email })
+    if (!user || !user.otp) {
+      return res
+        .status(400)
+        .json({ success: false, message: "OTP not found or expired" })
+    }
+
+    const isOTPValid = await bcrypt.compare(otp, user.otp)
+    if (!isOTPValid) {
+      return res.status(400).json({ success: false, message: "Invalid OTP" })
+    }
+
+    user.otp = undefined
+    user.otpCreatedAt = undefined
+    await user.save()
+
+    return res
+      .status(200)
+      .json({ success: true, message: "OTP verified successfully" })
+  } catch (error) {
+    return res.status(500).json({
+      success: false,
+      message: "Server error during OTP verification",
+      error: error.message,
+    })
+  }
 }
 
 module.exports = {
@@ -161,4 +194,5 @@ module.exports = {
   authenticateToken,
   getProfile,
   generateOTP,
+  verifyOTP,
 }
