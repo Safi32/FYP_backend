@@ -98,9 +98,9 @@ async function getProfile(req, res) {
 }
 
 async function generateOTP(req, res) {
-  const otp = Math.floor(1000 + Math.random() * 9000)
-
+  const otp = Math.floor(1000 + Math.random() * 9000).toString() // Convert OTP to string if necessary
   const { email } = req.body
+
   if (!email) {
     return res.status(400).json({
       success: false,
@@ -109,12 +109,17 @@ async function generateOTP(req, res) {
   }
 
   try {
-    const user = await User.findOneAndUpdate({ email }, { otp }, { new: true })
+    const user = await User.findOneAndUpdate(
+      { email },
+      { otp, otpCreatedAt: Date.now() }, // Set OTP and timestamp
+      { new: true }
+    )
 
     if (!user) {
       return res.status(404).json({ success: false, message: "User not found" })
     }
 
+    // Email setup (same as your original code)
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -151,25 +156,19 @@ async function generateOTP(req, res) {
 }
 
 const verifyOTP = async (req, res) => {
-  const { email, otp } = req.body
+  const { otp } = req.body
 
-  if (!email || !otp) {
-    return res
-      .status(400)
-      .json({ success: false, message: "Email and OTP are required" })
+  if (!otp) {
+    return res.status(400).json({ success: false, message: "OTP is required" })
   }
 
   try {
-    const user = await User.findOne({ email })
-    if (!user || !user.otp) {
+    const user = await User.findOne({ otp })
+
+    if (!user) {
       return res
         .status(400)
         .json({ success: false, message: "OTP not found or expired" })
-    }
-
-    const isOTPValid = await bcrypt.compare(otp, user.otp)
-    if (!isOTPValid) {
-      return res.status(400).json({ success: false, message: "Invalid OTP" })
     }
 
     user.otp = undefined
