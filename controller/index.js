@@ -4,25 +4,28 @@ const User = require("../model/index")
 const nodemailer = require("nodemailer")
 require("dotenv").config()
 
-const JWT_SECRET = process.env.JWT_SECRET || "DineDeal"
+const JWT_SECRET = process.env.JWT_SECRET
 
+// Create a new user
 async function createNewUser(req, res) {
   const { email, phoneNumber, password, confirmPassword } = req.body
 
+  // Validate input
   if (!email || !phoneNumber || !password || !confirmPassword) {
     return res.status(400).json({ message: "All fields are required" })
   }
-
   if (password !== confirmPassword) {
     return res.status(400).json({ message: "Passwords do not match" })
   }
 
   try {
+    // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" })
     }
 
+    // Hash the password and save the user
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = new User({ email, phoneNumber, password: hashedPassword })
     await newUser.save()
@@ -35,9 +38,11 @@ async function createNewUser(req, res) {
   }
 }
 
+// User login
 async function loginUser(req, res) {
   const { email, password } = req.body
 
+  // Validate input
   if (!email || !password) {
     return res.status(400).json({ message: "Email and Password are required" })
   }
@@ -48,6 +53,7 @@ async function loginUser(req, res) {
       return res.status(404).json({ message: "User not found" })
     }
 
+    // Validate password
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password
@@ -56,15 +62,19 @@ async function loginUser(req, res) {
       return res.status(401).json({ message: "Invalid credentials" })
     }
 
+    // Create and return token
     const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, {
       expiresIn: "1h",
     })
     return res.status(200).json({ message: "Login successful", token })
   } catch (error) {
-    return res.status(500).json({ message: "Error during login", error })
+    return res
+      .status(500)
+      .json({ message: "Error during login", error: error.message })
   }
 }
 
+// Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"]
   const token = authHeader && authHeader.split(" ")[1]
@@ -82,6 +92,7 @@ const authenticateToken = (req, res, next) => {
   })
 }
 
+// Get user profile
 async function getProfile(req, res) {
   try {
     const specificUser = await User.findById(req.user.id)
@@ -93,25 +104,28 @@ async function getProfile(req, res) {
       user: specificUser,
     })
   } catch (error) {
-    return res.status(500).json({ message: "Error fetching user", error })
+    return res
+      .status(500)
+      .json({ message: "Error fetching user", error: error.message })
   }
 }
 
+// Generate OTP for password reset
 async function generateOTP(req, res) {
-  const otp = Math.floor(1000 + Math.random() * 9000).toString() // Convert OTP to string if necessary
+  const otp = Math.floor(1000 + Math.random() * 9000).toString()
   const { email } = req.body
 
+  // Validate input
   if (!email) {
-    return res.status(400).json({
-      success: false,
-      message: "Email is required",
-    })
+    return res
+      .status(400)
+      .json({ success: false, message: "Email is required" })
   }
 
   try {
     const user = await User.findOneAndUpdate(
       { email },
-      { otp, otpCreatedAt: Date.now() }, // Set OTP and timestamp
+      { otp, otpCreatedAt: Date.now() },
       { new: true }
     )
 
@@ -119,7 +133,7 @@ async function generateOTP(req, res) {
       return res.status(404).json({ success: false, message: "User not found" })
     }
 
-    // Email setup (same as your original code)
+    // Set up email transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -128,6 +142,7 @@ async function generateOTP(req, res) {
       },
     })
 
+    // Send OTP email
     const mailOptions = {
       from: process.env.Email_User,
       to: email,
@@ -135,26 +150,24 @@ async function generateOTP(req, res) {
       text: `Your OTP code for password reset is: ${otp}`,
     }
 
-    transporter.sendMail(mailOptions, (error, info) => {
+    transporter.sendMail(mailOptions, (error) => {
       if (error) {
-        return res.status(500).json({
-          success: false,
-          message: "Failed to send OTP",
-          error,
-        })
+        return res
+          .status(500)
+          .json({ success: false, message: "Failed to send OTP", error })
       }
-      res.status(200).json({
-        success: true,
-        message: `OTP sent successfully to ${email}`,
-      })
+      res
+        .status(200)
+        .json({ success: true, message: `OTP sent successfully to ${email}` })
     })
   } catch (error) {
     return res
       .status(500)
-      .json({ success: false, message: "Server error", error })
+      .json({ success: false, message: "Server error", error: error.message })
   }
 }
 
+// Verify OTP
 const verifyOTP = async (req, res) => {
   const { otp } = req.body
 

@@ -1,10 +1,12 @@
 require("dotenv").config()
 const express = require("express")
-const mongoose = require("mongoose")
+// const mongoose = require("mongoose")
 const db = require("./config/db")
+const cors = require("cors")
 const app = express()
 const userRoutes = require("./router/index")
 
+app.use(cors())
 app.use(
   express.urlencoded({
     extended: false,
@@ -15,4 +17,6 @@ app.use("/", userRoutes)
 
 const PORT = process.env.PORT || 3000
 db.dbConnect()
-app.listen(PORT, () => console.log(`Server started at port ${PORT}`))
+app.listen(3000, "0.0.0.0", () => {
+  console.log("Server is running on port 3000")
+})
