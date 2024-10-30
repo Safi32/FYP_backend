@@ -6,11 +6,9 @@ require("dotenv").config()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-// Create a new user
 async function createNewUser(req, res) {
   const { email, phoneNumber, password, confirmPassword } = req.body
 
-  // Validate input
   if (!email || !phoneNumber || !password || !confirmPassword) {
     return res.status(400).json({ message: "All fields are required" })
   }
@@ -19,13 +17,11 @@ async function createNewUser(req, res) {
   }
 
   try {
-    // Check if user already exists
     const existingUser = await User.findOne({ email })
     if (existingUser) {
       return res.status(400).json({ message: "Email already exists" })
     }
 
-    // Hash the password and save the user
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = new User({ email, phoneNumber, password: hashedPassword })
     await newUser.save()
@@ -38,11 +34,9 @@ async function createNewUser(req, res) {
   }
 }
 
-// User login
 async function loginUser(req, res) {
   const { email, password } = req.body
 
-  // Validate input
   if (!email || !password) {
     return res.status(400).json({ message: "Email and Password are required" })
   }
@@ -53,7 +47,6 @@ async function loginUser(req, res) {
       return res.status(404).json({ message: "User not found" })
     }
 
-    // Validate password
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password
@@ -62,7 +55,6 @@ async function loginUser(req, res) {
       return res.status(401).json({ message: "Invalid credentials" })
     }
 
-    // Create and return token
     const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, {
       expiresIn: "1h",
     })
@@ -74,7 +66,6 @@ async function loginUser(req, res) {
   }
 }
 
-// Middleware to authenticate token
 const authenticateToken = (req, res, next) => {
   const authHeader = req.headers["authorization"]
   const token = authHeader && authHeader.split(" ")[1]
@@ -92,7 +83,6 @@ const authenticateToken = (req, res, next) => {
   })
 }
 
-// Get user profile
 async function getProfile(req, res) {
   try {
     const specificUser = await User.findById(req.user.id)
@@ -110,12 +100,10 @@ async function getProfile(req, res) {
   }
 }
 
-// Generate OTP for password reset
 async function generateOTP(req, res) {
   const otp = Math.floor(1000 + Math.random() * 9000).toString()
   const { email } = req.body
 
-  // Validate input
   if (!email) {
     return res
       .status(400)
@@ -133,7 +121,6 @@ async function generateOTP(req, res) {
       return res.status(404).json({ success: false, message: "User not found" })
     }
 
-    // Set up email transporter
     const transporter = nodemailer.createTransport({
       service: "gmail",
       auth: {
@@ -142,7 +129,6 @@ async function generateOTP(req, res) {
       },
     })
 
-    // Send OTP email
     const mailOptions = {
       from: process.env.Email_User,
       to: email,
@@ -167,7 +153,6 @@ async function generateOTP(req, res) {
   }
 }
 
-// Verify OTP
 const verifyOTP = async (req, res) => {
   const { otp } = req.body
 
@@ -185,7 +170,6 @@ const verifyOTP = async (req, res) => {
     }
 
     user.otp = undefined
-    user.otpCreatedAt = undefined
     await user.save()
 
     return res
