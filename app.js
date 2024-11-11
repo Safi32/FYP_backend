@@ -6,6 +6,8 @@ const cors = require("cors")
 const app = express()
 const userRoutes = require("./router/index")
 
+const routers = require("./router/restaurant.js")
+
 app.use(cors())
 app.use(
   express.urlencoded({
@@ -14,6 +16,7 @@ app.use(
 )
 app.use(express.json())
 app.use("/", userRoutes)
+app.use("/", routers)
 
 const PORT = process.env.PORT || 3000
 db.dbConnect()

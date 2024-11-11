@@ -7,7 +7,6 @@ const {
   getProfile,
   generateOTP,
   verifyOTP,
-  changePassword,
 } = require("../controller/index.js")
 
 router

@@ -9,16 +9,15 @@ const JWT_SECRET = process.env.JWT_SECRET
 async function createNewUser(req, res) {
   const { username, email, password, confirmPassword } = req.body
 
-  // Validate input fields
   if (!username || !email || !password || !confirmPassword) {
     return res.status(400).json({ message: "All fields are required" })
   }
+
   if (password !== confirmPassword) {
     return res.status(400).json({ message: "Passwords do not match" })
   }
 
   try {
-    // Check if email or username already exists
     const existingEmail = await User.findOne({ email })
     const existingUsername = await User.findOne({ username })
 
@@ -28,12 +27,10 @@ async function createNewUser(req, res) {
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists" })
     }
-
-    // Hash the password and create new user
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = new User({ username, email, password: hashedPassword })
-    await newUser.save()
 
+    await newUser.save()
     return res.status(201).json({ message: "User Created Successfully" })
   } catch (error) {
     return res
@@ -45,19 +42,16 @@ async function createNewUser(req, res) {
 async function loginUser(req, res) {
   const { email, password } = req.body
 
-  // Validate input fields
   if (!email || !password) {
     return res.status(400).json({ message: "Email and Password are required" })
   }
 
   try {
-    // Find user by email
     const existingUser = await User.findOne({ email })
     if (!existingUser) {
       return res.status(404).json({ message: "User not found" })
     }
 
-    // Verify password
     const isPasswordValid = await bcrypt.compare(
       password,
       existingUser.password
@@ -66,7 +60,6 @@ async function loginUser(req, res) {
       return res.status(401).json({ message: "Invalid credentials" })
     }
 
-    // Generate JWT token
     const token = jwt.sign({ id: existingUser._id }, JWT_SECRET, {
       expiresIn: "1h",
     })
