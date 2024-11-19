@@ -3,18 +3,16 @@ const router = express.Router()
 const {
   createNewUser,
   loginUser,
-  authenticateToken,
   getProfile,
   generateOTP,
   verifyOTP,
-} = require("../controller/index.js")
+} = require("../controller/index")
+const authenticateToken = require("../middleware/index")
 
-router
-  .post("/signup", createNewUser)
-  .post("/login", loginUser)
-  .post("/otp", generateOTP)
-  .post("/verify", verifyOTP)
-
+router.post("/signup", createNewUser)
+router.post("/login", loginUser)
+router.post("/otp", generateOTP)
+router.post("/verify", verifyOTP)
 router.get("/profile", authenticateToken, getProfile)
 
 module.exports = router

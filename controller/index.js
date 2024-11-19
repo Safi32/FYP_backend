@@ -71,23 +71,6 @@ async function loginUser(req, res) {
   }
 }
 
-const authenticateToken = (req, res, next) => {
-  const authHeader = req.headers["authorization"]
-  const token = authHeader && authHeader.split(" ")[1]
-
-  if (!token) {
-    return res.status(401).json({ message: "Token is required" })
-  }
-
-  jwt.verify(token, JWT_SECRET, (err, user) => {
-    if (err) {
-      return res.status(403).json({ message: "Invalid token" })
-    }
-    req.user = user
-    next()
-  })
-}
-
 async function getProfile(req, res) {
   try {
     const specificUser = await User.findById(req.user.id)
@@ -192,7 +175,6 @@ const verifyOTP = async (req, res) => {
 module.exports = {
   createNewUser,
   loginUser,
-  authenticateToken,
   getProfile,
   generateOTP,
   verifyOTP,
