@@ -1,12 +1,20 @@
 const jwt = require("jsonwebtoken");
+const BlacklistedToken = require("../model/BlacklistedToken");
 
-const authMiddleware = (req, res, next) => {
+const authMiddleware = async (req, res, next) => {
   try {
-    const token = req.header("Authorization").replace("Bearer ", "");
+    const token = req.header("Authorization")?.replace("Bearer ", "");
     if (!token) {
-      return res.status(401).json({ message: "Access denied" });
+      return res.status(401).json({ message: "Access denied. No token provided." });
     }
 
+    // Check if the token is blacklisted
+    const blacklisted = await BlacklistedToken.findOne({ token });
+    if (blacklisted) {
+      return res.status(401).json({ message: "Access denied. Token is blacklisted." });
+    }
+
+    // Verify the token
     const verified = jwt.verify(token, process.env.JWT_SECRET);
     req.user = verified;
     next();
