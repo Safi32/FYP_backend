@@ -9,22 +9,20 @@ const {
 
 const router = express.Router()
 
-// Configure multer
 const storage = multer.diskStorage({
   destination: (req, file, cb) => {
-    cb(null, "uploads/") // Save images in the "uploads" folder
+    cb(null, "uploads/")
   },
   filename: (req, file, cb) => {
-    cb(null, `${Date.now()}-${file.originalname}`) // Create unique filenames
+    cb(null, `${Date.now()}-${file.originalname}`)
   },
 })
 
 const upload = multer({ storage })
 
-// Routes
-router.post("/add", upload.single("image"), addDeal) // Add a deal with image
-router.get("/", getDeals) // Get all deals
-router.delete("/delete/:id", deleteDeal) // Delete a deal
-router.put("/update/:id", upload.single("image"), updateDeal) // Update a deal with image
+router.post("/add", upload.single("image"), addDeal)
+router.get("/", getDeals)
+router.delete("/delete/:id", deleteDeal)
+router.put("/update/:id", upload.single("image"), updateDeal)
 
 module.exports = router
