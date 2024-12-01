@@ -1,8 +1,11 @@
 const Restaurant = require("../model/restaurant")
+const bcrypt = require("bcrypt")
 
 exports.createRestaurant = async (req, res) => {
   try {
     const picturePaths = req.files ? req.files.map((file) => file.path) : []
+
+    const hashedPassword = await bcrypt.hash(req.body.password, 10)
 
     const restaurant = new Restaurant({
       name: req.body.name,
@@ -17,6 +20,7 @@ exports.createRestaurant = async (req, res) => {
       maxPriceRange: req.body.maxPriceRange,
       restaurantInfo: req.body.restaurantInfo,
       pictures: picturePaths,
+      password: hashedPassword,
       acceptPolicies: req.body.acceptPolicies === "true",
       advanceReservationPeriod: {
         days: req.body.advanceReservationDays,

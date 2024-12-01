@@ -4,7 +4,7 @@ const db = require("./config/db")
 const cors = require("cors")
 const app = express()
 const userRoutes = require("./router/index")
-
+const { uploadPictures } = require("./middleware/restaurant.js")
 const routers = require("./router/restaurant.js")
 
 app.use(cors())

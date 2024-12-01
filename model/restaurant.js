@@ -69,6 +69,11 @@ const restaurantSchema = new mongoose.Schema(
     additionalInformation: {
       type: String,
     },
+    password: {
+      type: String,
+      required: true,
+      minlength: 6,
+    },
   },
   { collection: "restaurants_data" }
 )
