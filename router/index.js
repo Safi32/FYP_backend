@@ -7,6 +7,7 @@ const {
   generateOTP,
   verifyOTP,
 } = require("../controller/index")
+
 const authenticateToken = require("../middleware/index")
 
 router.post("/signup", createNewUser)
