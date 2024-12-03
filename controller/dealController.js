@@ -7,8 +7,8 @@ const addDeal = async (req, res) => {
     let imageUrl = null
 
     if (req.file) {
-      const uploadResult = await uploadOnCloudinary(req.file.path) // Upload to Cloudinary
-      imageUrl = uploadResult.secure_url // Extract the secure URL
+      const uploadResult = await uploadOnCloudinary(req.file.path)
+      imageUrl = uploadResult.secure_url
     }
 
     const newDeal = new Deal({

@@ -3,11 +3,14 @@ const express = require("express")
 const connectDB = require("./config/db")
 const cors = require("cors")
 const app = express()
+const userLogin = require("./router/index.js")
 const userRoutes = require("./router/index")
-const restaurantRoutes = require("./router/restaurantRoutes")
+
 const authMiddleware = require("./middleware/authMiddleware.js")
 const dealRoutes = require("./router/dealRouters.js")
-const reservationRoutes = require("./router/reservationRoutes.js")
+const listRestaurant = require("./router/listRestaurant.js")
+const ApiError = require("./utils/ApiError.js")
+
 app.use(cors())
 app.use(
   express.urlencoded({
@@ -15,17 +18,22 @@ app.use(
   })
 )
 app.use(express.json())
+app.use("/", userLogin)
 app.use("/api/user", userRoutes)
-app.use("/api/restaurant", restaurantRoutes)
+
 app.use("/uploads", express.static("uploads"))
 app.use("/api/deals", dealRoutes)
 app.use("/api/protected", authMiddleware, (req, res) => {
   res.status(200).json({ message: "You are authorized!" })
 })
-app.use("/api/reservations", reservationRoutes)
-
-// app.use("/api/user", userRoutes)
-// app.use("/api/restaurant", restaurantRoutes)
+app.use("/listRestaurant", listRestaurant)
+app.use((err, req, res, next) => {
+  if (err instanceof ApiError) {
+    return res.status(err.statusCode).json({ message: err.message })
+  }
+  console.error(err)
+  res.status(500).json({ message: "Internal Server Error" })
+})
 
 const PORT = process.env.PORT || 3000
 connectDB()

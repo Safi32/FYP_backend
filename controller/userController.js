@@ -28,11 +28,32 @@ const loginUser = async (req, res) => {
   }
 }
 
+// const logoutUser = async (req, res) => {
+//   try {
+//     const token = req.header("Authorization")?.replace("Bearer ", "")
+//     if (!token) {
+//       return res.status(400).json({ message: "No token provided" })
+//     }
+
+//     const decoded = jwt.decode(token)
+//     const expiresAt = new Date(decoded.exp * 1000)
+
+//     const blacklistedToken = new BlacklistedToken({ token, expiresAt })
+//     await blacklistedToken.save()
+
+//     res.status(200).json({ message: "Logout successful. Token blacklisted." })
+//   } catch (err) {
+//     res.status(500).json({ error: err.message })
+//   }
+// }
+
 const logoutUser = async (req, res) => {
   try {
     const token = req.header("Authorization")?.replace("Bearer ", "")
     if (!token) {
-      return res.status(400).json({ message: "No token provided" })
+      return res
+        .status(400)
+        .json({ success: false, message: "No token provided" })
     }
 
     const decoded = jwt.decode(token)
@@ -41,9 +62,11 @@ const logoutUser = async (req, res) => {
     const blacklistedToken = new BlacklistedToken({ token, expiresAt })
     await blacklistedToken.save()
 
-    res.status(200).json({ message: "Logout successful. Token blacklisted." })
+    res
+      .status(200)
+      .json({ success: true, message: "Logout successful. Token blacklisted." })
   } catch (err) {
-    res.status(500).json({ error: err.message })
+    res.status(500).json({ success: false, error: err.message })
   }
 }
 
