@@ -45,4 +45,70 @@ const logoutRestaurant = async (req, res) => {
   }
 };
 
-module.exports = { loginRestaurant, logoutRestaurant };
+// Register a new restaurant
+const registerRestaurant = async (req, res) => {
+  try {
+    const {
+      name,
+      phoneNumber,
+      email,
+      address,
+      websiteURL,
+      socialMediaLinks,
+      restaurantType,
+      operationalHours,
+      minPriceRange,
+      maxPriceRange,
+      restaurantInfo,
+      acceptPolicies,
+      advanceReservationPeriod,
+      restaurantFeatures,
+      additionalInformation,
+      password,
+    } = req.body;
+
+    // Validate required fields
+    if (!acceptPolicies) {
+      return res.status(400).json({ message: "Policies must be accepted to register." });
+    }
+
+    // Check if email already exists
+    const existingRestaurant = await Restaurant.findOne({ email });
+    if (existingRestaurant) {
+      return res.status(400).json({ message: "Email is already registered." });
+    }
+
+    // Store uploaded image URLs
+    const pictures = req.files.map((file) => file.path);
+
+    // Create a new restaurant
+    const restaurant = new Restaurant({
+      name,
+      phoneNumber,
+      email,
+      address,
+      websiteURL,
+      socialMediaLinks,
+      restaurantType,
+      operationalHours,
+      minPriceRange,
+      maxPriceRange,
+      restaurantInfo,
+      pictures,
+      acceptPolicies,
+      advanceReservationPeriod,
+      restaurantFeatures,
+      additionalInformation,
+      password,
+    });
+
+    // Save restaurant to the database
+    await restaurant.save();
+
+    res.status(201).json({ message: "Restaurant registered successfully", restaurant });
+  } catch (err) {
+    res.status(500).json({ error: err.message });
+  }
+};
+
+module.exports = { loginRestaurant, logoutRestaurant, registerRestaurant };

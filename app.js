@@ -1,28 +1,33 @@
-const express = require("express")
-const dotenv = require("dotenv")
-const connectDB = require("./config/db")
-const userRoutes = require("./router/userRoutes")
-const restaurantRoutes = require("./router/restaurantRoutes")
-const dealRoutes = require("./router/dealRoutes")
-const authMiddleware = require("./middleware/authMiddleware")
+const express = require("express");
+const dotenv = require("dotenv");
+const connectDB = require("./config/db");
+const userRoutes = require("./router/userRoutes");
+const restaurantRoutes = require("./router/restaurantRoutes");
+const dealRoutes = require("./router/dealRoutes");
+const authMiddleware = require("./middleware/authMiddleware");
+const reservationRoutes = require("./router/reservationRoutes");
 
-dotenv.config()
-connectDB()
+require("dotenv").config();
 
-const app = express()
-app.use(express.json())
+connectDB();
 
-app.use("/api/user", userRoutes)
-app.use("/api/restaurant", restaurantRoutes)
-app.use("/api/deals", dealRoutes)
+const app = express();
+app.use(express.json());
 
-const PORT = process.env.PORT || 3000
+// Routes
+// Add reservation routes
+app.use("/api/reservations", reservationRoutes);
+app.use("/api/user", userRoutes);
+app.use("/api/restaurant", restaurantRoutes);
+app.use("/api/deals", dealRoutes);
+
+const PORT = process.env.PORT || 3000;
 
 app.listen(PORT, () => {
-  console.log(`Server is running on port ${PORT}`)
-})
+  console.log(`Server is running on port ${PORT}`);
+});
 
-app.use("/uploads", express.static("uploads"))
+app.use("/uploads", express.static("uploads"));
 app.use("/api/protected", authMiddleware, (req, res) => {
-  res.status(200).json({ message: "You are authorized!" })
-})
+  res.status(200).json({ message: "You are authorized!" });
+});
