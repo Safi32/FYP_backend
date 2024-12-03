@@ -5,11 +5,11 @@ const cors = require("cors")
 const app = express()
 const userLogin = require("./router/index.js")
 const userRoutes = require("./router/index")
-
 const authMiddleware = require("./middleware/authMiddleware.js")
 const dealRoutes = require("./router/dealRouters.js")
 const listRestaurant = require("./router/listRestaurant.js")
 const ApiError = require("./utils/ApiError.js")
+const reservation = require("./router/reservation.js")
 
 app.use(cors())
 app.use(
@@ -20,7 +20,7 @@ app.use(
 app.use(express.json())
 app.use("/", userLogin)
 app.use("/api/user", userRoutes)
-
+app.use("/reservation", reservation)
 app.use("/uploads", express.static("uploads"))
 app.use("/api/deals", dealRoutes)
 app.use("/api/protected", authMiddleware, (req, res) => {
