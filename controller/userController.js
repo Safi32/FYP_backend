@@ -19,7 +19,7 @@ const sendOtp = async (req, res) => {
 
     // Generate OTP
     const otp = Math.floor(100000 + Math.random() * 900000).toString();
-    const otpExpiresAt = Date.now() + 10 * 60 * 1000; // OTP valid for 10 minutes
+    const otpExpiresAt = Date.now() + 5 * 60 * 1000; // OTP valid for 5 minutes
 
     user.otp = otp;
     user.otpExpiresAt = otpExpiresAt;
@@ -27,7 +27,7 @@ const sendOtp = async (req, res) => {
 
     // Send email with OTP
     const subject = "Your OTP for Password Reset";
-    const message = `Your OTP for resetting your password is: ${otp}. It will expire in 10 minutes.`;
+    const message = `Your OTP for resetting your password is: ${otp}. It will expire in 5 minutes.`;
     await sendEmail(email, subject, message);
 
     res.status(200).json({ message: "OTP sent to your email." });
@@ -35,6 +35,7 @@ const sendOtp = async (req, res) => {
     res.status(500).json({ error: err.message });
   }
 };
+
 
 // Verify OTP
 const verifyOtp = async (req, res) => {
