@@ -4,6 +4,8 @@ const bcrypt = require("bcryptjs");
 const userSchema = new mongoose.Schema({
   email: { type: String, required: true, unique: true },
   password: { type: String, required: true },
+  otp: { type: String }, // Store OTP
+  otpExpiresAt: { type: Date }, // OTP expiration time
 }, { timestamps: true });
 
 // Hash password before saving
