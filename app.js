@@ -6,10 +6,13 @@ const app = express()
 const userLogin = require("./router/index.js")
 const userRoutes = require("./router/index")
 const authMiddleware = require("./middleware/authMiddleware.js")
+
 const dealRoutes = require("./router/dealRouters.js")
-const listRestaurant = require("./router/listRestaurant.js")
+
 const ApiError = require("./utils/ApiError.js")
 const reservation = require("./router/reservation.js")
+
+const authRouter = require("./router/auth.js")
 
 app.use(cors())
 app.use(
@@ -19,6 +22,7 @@ app.use(
 )
 app.use(express.json())
 app.use("/", userLogin)
+
 app.use("/api/user", userRoutes)
 app.use("/reservation", reservation)
 app.use("/uploads", express.static("uploads"))
@@ -26,7 +30,9 @@ app.use("/api/deals", dealRoutes)
 app.use("/api/protected", authMiddleware, (req, res) => {
   res.status(200).json({ message: "You are authorized!" })
 })
-app.use("/listRestaurant", listRestaurant)
+
+app.use("/auth", authRouter)
+
 app.use((err, req, res, next) => {
   if (err instanceof ApiError) {
     return res.status(err.statusCode).json({ message: err.message })

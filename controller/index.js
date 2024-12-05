@@ -6,7 +6,45 @@ require("dotenv").config()
 
 const JWT_SECRET = process.env.JWT_SECRET
 
-async function createNewUser(req, res) {
+// const createNewUser = async (req, res) => {
+//   const { username, email, password, confirmPassword } = req.body
+
+//   if (!username || !email || !password || !confirmPassword) {
+//     return res.status(400).json({ message: "All fields are required" })
+//   }
+
+//   if (password !== confirmPassword) {
+//     return res.status(400).json({ message: "Passwords do not match" })
+//   }
+
+//   try {
+//     const existingUser = await User.findOne({ email })
+//     if (existingUser) {
+//       return res.status(400).json({ message: "Email already exists" })
+//     }
+
+//     const hashedPassword = await bcrypt.hash(password, 10)
+//     const newUser = new User({ username, email, password: hashedPassword })
+
+//     const savedUser = await newUser.save()
+
+//     // Return the `ObjectId` and username in the response
+//     return res.status(201).json({
+//       message: "User created successfully",
+//       user: {
+//         id: savedUser._id,
+//         username: savedUser.username,
+//       },
+//     })
+//   } catch (error) {
+//     console.error("Error creating user:", error.message)
+//     return res
+//       .status(500)
+//       .json({ message: "Server error", error: error.message })
+//   }
+// }
+
+const createNewUser = async (req, res) => {
   const { username, email, password, confirmPassword } = req.body
 
   if (!username || !email || !password || !confirmPassword) {
@@ -19,19 +57,26 @@ async function createNewUser(req, res) {
 
   try {
     const existingEmail = await User.findOne({ email })
-    const existingUsername = await User.findOne({ username })
-
     if (existingEmail) {
       return res.status(400).json({ message: "Email already exists" })
     }
+
+    const existingUsername = await User.findOne({ username })
     if (existingUsername) {
       return res.status(400).json({ message: "Username already exists" })
     }
+
     const hashedPassword = await bcrypt.hash(password, 10)
     const newUser = new User({ username, email, password: hashedPassword })
 
-    await newUser.save()
-    return res.status(201).json({ message: "User Created Successfully" })
+    const savedUser = await newUser.save()
+
+    // Return ObjectId and username after signup
+    return res.status(201).json({
+      message: "User created successfully",
+      userId: savedUser._id,
+      username: savedUser.username,
+    })
   } catch (error) {
     return res
       .status(500)

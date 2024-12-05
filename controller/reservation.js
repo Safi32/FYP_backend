@@ -3,35 +3,34 @@ const User = require("../model/index")
 
 const createReservation = async (req, res) => {
   try {
-    const { userId, tableNumber, noOfPersons } = req.body
+    const { tableNumber, noOfPersons, date, time } = req.body
 
-    if (!userId || !tableNumber || !noOfPersons) {
-      return res.status(400).json({ error: "All fields are required" })
+    // Validate required fields
+    if (!tableNumber || !noOfPersons || !date || !time) {
+      return res.status(400).json({
+        error:
+          "All fields (userId, tableNumber, noOfPersons, date, time) are required",
+      })
     }
 
-    const user = await User.findById(userId)
-    if (!user) {
-      return res.status(404).json({ error: "User not found" })
-    }
-
+    // Create a new reservation
     const newReservation = new Reservation({
-      username: user.username,
       tableNumber,
       noOfPersons,
+      date, // Pass the date
+      time, // Pass the time
     })
 
     const savedReservation = await newReservation.save()
 
-    const reservationJSON = savedReservation.toJSON()
-
+    // Send the response
     res.status(201).json({
       message: "Reservation created successfully",
       reservation: {
-        username: reservationJSON.username,
-        tableNumber: reservationJSON.tableNumber,
-        noOfPersons: reservationJSON.noOfPersons,
-        date: reservationJSON.formattedDate.date,
-        time: reservationJSON.formattedDate.time,
+        tableNumber: savedReservation.tableNumber,
+        noOfPersons: savedReservation.noOfPersons,
+        date: savedReservation.date,
+        time: savedReservation.time,
       },
     })
   } catch (error) {
