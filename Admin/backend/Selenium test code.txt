@@ -1,0 +1,353 @@
+         									Add Category
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import os
+
+# Initialize the WebDriver (make sure chromedriver is in your PATH)
+driver = webdriver.Chrome()
+
+# Open the Flutter web app
+driver.get('http://localhost:54437')  # Replace with your actual port number
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view')))
+
+# Wait for 50 seconds to ensure the page is fully loaded
+time.sleep(60)
+
+# Click the "Add Category" button
+try:
+    add_category_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    add_category_button.click()
+    print("Add Category button found and clicked")
+except Exception as e:
+    print(f"Add Category button not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Wait for the dialog to appear
+try:
+    dialog = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("Add Category dialog found")
+except Exception as e:
+    print(f"Add Category dialog not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Enter the category name
+try:
+    category_name_input = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    category_name_input.send_keys('New Category')
+    print("Category name input found and filled")
+except Exception as e:
+    print(f"Category name input not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Select an image file
+try:
+    select_image_button = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    select_image_button.click()
+    print("Select Image button found and clicked")
+
+    # Assuming the file picker dialog is handled by the OS, you need to use a tool like AutoIt for Windows
+    # or provide the file path directly if the file picker is a web element
+    # For demonstration, we'll assume the file path is provided directly
+    file_input = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    file_path = os.path.abspath('C:\\Users\\Mohammad Ismail\\Desktop\\deal\\uploads\\749455.jpg')  # Replace with the actual path to your image file
+    file_input.send_keys(file_path)
+    print("Image file selected")
+except Exception as e:
+    print(f"Select Image button or file input not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Click the "Add" button
+try:
+    add_button = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    add_button.click()
+    print("Add button found and clicked")
+except Exception as e:
+    print(f"Add button not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Wait for the dialog to close and the category to be added
+try:
+   
+
+    # Verify that the new category is added to the table
+    new_category = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("New category found in the table")
+    print("Add Category test passed")
+except Exception as e:
+    print(f"Add Category dialog did not close or new category not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Close the browser
+driver.quit()
+
+
+                                                                                    Login
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Initialize the WebDriver (make sure chromedriver is in your PATH)
+driver = webdriver.Chrome()
+
+# Open the Flutter web app
+driver.get('http://localhost:61167')  # Replace XXXX with your actual port number
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view')))
+
+
+
+# Find the email input field and enter an email
+try:
+    email_input = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view/flt-text-editing-host/form[1]/input')))
+    email_input.send_keys('Ismail@gmail.com')
+    print("Email input found and filled")
+except Exception as e:
+    print(f"Email input not found: {e}")
+
+# Find the password input field and enter a password
+try:
+    password_input = WebDriverWait(driver, 15).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view/flt-text-editing-host/form[2]/input[1]')))
+    password_input.send_keys('123456')
+    print("Password input found and filled")
+except Exception as e:
+    print(f"Password input not found: {e}")
+
+# Find the sign-in button and click it
+try:
+    sign_in_button = WebDriverWait(driver, 20).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view/flt-text-editing-host/form[2]/input[@class="submitBtn"]')))
+    # Scroll the button into view
+    driver.execute_script("arguments[0].scrollIntoView(true);", sign_in_button)
+    # Click the button using JavaScript
+    driver.execute_script("arguments[0].click();", sign_in_button)
+    print("Sign-in button found")
+except Exception as e:
+    print(f"Sign-in button not found: {e}")
+
+# Wait for the URL to change to the dashboard URL
+try:
+    WebDriverWait(driver, 30).until(EC.url_contains('#/DashboardScreen'))
+    print("Dashboard URL found")
+    print("Login successful!")
+except Exception as e:
+    print(f"Dashboard URL not found: {e}")
+
+# Close the browser
+driver.quit()
+
+										Edit category
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+import os
+
+# Initialize the WebDriver (make sure chromedriver is in your PATH)
+driver = webdriver.Chrome()
+
+# Open the Flutter web app
+driver.get('http://localhost:54437')  # Replace with your actual port number
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view')))
+
+# Wait for 50 seconds to ensure the page is fully loaded
+time.sleep(60)
+
+# Click the "Edit" button for an existing category
+try:
+    edit_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    edit_button.click()
+    print("Edit Category button found and clicked")
+except Exception as e:
+    print(f"Edit Category button not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Wait for the edit dialog to appear
+try:
+    dialog = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("Edit Category dialog found")
+except Exception as e:
+    print(f"Edit Category dialog not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Enter the new category name
+try:
+    category_name_input = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    category_name_input.send_keys('Category')
+    print("Category name input found and filled with new name")
+except Exception as e:
+    print(f"Category name input not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Select a new image file (if applicable)
+try:
+    select_image_button = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    select_image_button.click()
+    print("Select Image button found and clicked")
+
+    # Assuming the file picker dialog is handled by the OS, you need to use a tool like AutoIt for Windows
+    # or provide the file path directly if the file picker is a web element
+    # For demonstration, we'll assume the file path is provided directly
+    file_input = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    file_path = os.path.abspath('C:\\Users\\Mohammad Ismail\\Desktop\\deal\\uploads\\749455.jpg')  # Replace with the actual path to your image file
+    file_input.send_keys(file_path)
+    print("New image file selected")
+except Exception as e:
+    print(f"Select Image button or file input not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Click the "Save" button
+try:
+    save_button = WebDriverWait(dialog, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    save_button.click()
+    print("Save button found and clicked")
+except Exception as e:
+    print(f"Save button not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Wait for the dialog to close and the category to be updated
+try:
+    # Verify that the category has been updated in the table
+    updated_category = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("Category updated to 'Updated Category' in the table")
+    print("Edit Category test passed")
+except Exception as e:
+    print(f"Edit Category dialog did not close or category not updated: {e}")
+    driver.quit()
+    exit(1)
+
+# Close the browser
+driver.quit()
+
+										Delete Category
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Initialize the WebDriver (make sure chromedriver is in your PATH)
+driver = webdriver.Chrome()
+
+# Open the Flutter web app
+driver.get('http://localhost:54437')  # Replace with your actual port number
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view')))
+
+# Wait for 50 seconds to ensure the page is fully loaded
+time.sleep(40)
+
+# Click the "Delete" button for an existing category
+try:
+    delete_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    delete_button.click()
+    print("Delete Category button found and clicked")
+except Exception as e:
+    print(f"Delete Category button not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Handle the confirmation dialog (if applicable)
+try:
+    confirm_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    confirm_button.click()
+    print("Confirm button found and clicked")
+    print("Delete Category test passed")
+except Exception as e:
+    print(f"Confirm button not found: {e}")
+    driver.quit()
+    exit(1)
+
+
+# Close the browser
+driver.quit()
+
+
+										Restaurant Registration test
+
+from selenium import webdriver
+from selenium.webdriver.common.by import By
+from selenium.webdriver.support.ui import WebDriverWait
+from selenium.webdriver.support import expected_conditions as EC
+import time
+
+# Initialize the WebDriver (make sure chromedriver is in your PATH)
+driver = webdriver.Chrome()
+
+# Open the Flutter web app
+driver.get('http://localhost:65482')  # Replace with your actual port number
+
+# Wait for the page to load
+WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body/flutter-view')))
+
+# Wait for 50 seconds to ensure the page is fully loaded
+time.sleep(60)
+
+# Click the "Restaurant Request" tab
+try:
+    restaurant_request_tab = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    restaurant_request_tab.click()
+    print("Restaurant Request tab found and clicked")
+except Exception as e:
+    print(f"Restaurant Request tab not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Verify that the restaurant registration requests are displayed
+try:
+    registration_requests = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("Restaurant registration requests found")
+except Exception as e:
+    print(f"Restaurant registration requests not found: {e}")
+    driver.quit()
+    exit(1)
+
+# Locate and click the "Accept" button for a specific restaurant request
+try:
+    accept_button = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    accept_button.click()
+    print("Accept button found and clicked")
+except Exception as e:
+    print(f"Accept button not found: {e}")
+    driver.quit()
+    exit(1)
+
+
+
+# Verify that the status of the restaurant request is updated to "Accepted"
+try:
+    updated_status = WebDriverWait(driver, 10).until(EC.presence_of_element_located((By.XPATH, '/html/body')))
+    print("Restaurant request status updated to 'Accepted' and email Sended")
+    print("Restaurant registration request test passed")
+except Exception as e:
+    print(f"Restaurant request status not updated: {e}")
+    driver.quit()
+    exit(1)
+
+# Close the browser
+driver.quit()
